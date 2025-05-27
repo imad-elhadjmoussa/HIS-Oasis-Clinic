@@ -27,9 +27,8 @@
 
       <Column header="Actions">
         <template #body="{ data }">
-          <router-link :to="`cashier/fiches/${data.id}/prestations`">
-            <Button icon="pi pi-list" label="View Prestations" class="p-button-sm p-button-info" />
-          </router-link>
+          <Button @click="viewPrestationDetails(data)" icon="pi pi-list" label="View Prestations"
+            class="p-button-sm p-button-info" />
         </template>
       </Column>
     </DataTable>
@@ -57,18 +56,27 @@ import Column from 'primevue/column';
 import Button from 'primevue/button';
 import Dialog from 'primevue/dialog';
 import InputText from 'primevue/inputtext';
+import { useUserStore } from '../../stors/user';
+import { useRouter } from 'vue-router';
 
 // Données
+const userStore = useUserStore();
 const searchQuery = ref('');
 const fiches = ref([]);
 const infoDialog = ref(false);
 const selectedFiche = ref({});
+const router = useRouter();
 
 const filteredFiches = computed(() => {
   return fiches.value.filter(fiche =>
     fiche.id.toString().includes(searchQuery.value.trim())
   );
 });
+
+const viewPrestationDetails = (data) => {
+  const basePath = userStore.role === 'Admin' ? '/cashier' : '';
+  router.push(`${basePath}/fiches/${data.id}/prestations`);
+};
 
 const getTagSeverity = (status) => {
   switch (status) {

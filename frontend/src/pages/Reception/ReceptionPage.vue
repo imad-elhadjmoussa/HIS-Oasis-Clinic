@@ -1,169 +1,137 @@
 <template>
-    <div class="grid">
-        <!-- First Row - Stats Cards -->
-        <div class="col-12 md:col-6 lg:col-3">
-            <Card class="shadow-1 hover:shadow-3 transition-all transition-duration-300 border-1 surface-border">
-                <template #content>
-                    <div class="flex flex-column gap-3">
-                        <div class="flex justify-between align-items-center">
-                            <span class="text-color-secondary font-medium">Total Patients</span>
-                            <div class="p-2 border-round surface-card" style="background-color: var(--blue-50)">
-                                <i class="pi pi-users text-blue-500 text-lg"></i>
-                            </div>
-                        </div>
-                        <div class="text-900 font-bold text-4xl">{{ totalPatients }}</div>
-                        <div class="text-sm text-color-secondary">
-                            <span
-                                :class="totalPatients >= Math.floor(totalPatients * 0.88) ? 'text-green-500' : 'text-red-500'">
-                                {{ totalPatients >= Math.floor(totalPatients * 0.88) ? '↑' : '↓' }}
-                                {{ Math.abs(Math.floor(totalPatients * 0.88) - totalPatients) }}
-                            </span>
-                            <span class="ml-1">from last month</span>
-                        </div>
-                    </div>
-                </template>
-            </Card>
-        </div>
+    <div class="min-h-screen bg-slate-50 p-6">
+        <div class="mx-auto max-w-7xl space-y-8">
+            <!-- Header -->
+            <div class="space-y-2">
+                <h1 class="text-3xl font-bold tracking-tight text-slate-900">Medical Dashboard</h1>
+                <p class="text-slate-600">Overview of patients and medical records</p>
+            </div>
 
-        <div class="col-12 md:col-6 lg:col-3">
-            <Card class="shadow-1 hover:shadow-3 transition-all transition-duration-300 border-1 surface-border">
-                <template #content>
-                    <div class="flex flex-column gap-3">
-                        <div class="flex justify-between align-items-center">
-                            <span class="text-color-secondary font-medium">Medical Records</span>
-                            <div class="p-2 border-round surface-card" style="background-color: var(--green-50)">
-                                <i class="pi pi-file text-green-500 text-lg"></i>
-                            </div>
-                        </div>
-                        <div class="text-900 font-bold text-4xl">{{ totalMedicalRecords }}</div>
-                        <div class="text-sm text-color-secondary">
-                            <span
-                                :class="totalMedicalRecords >= Math.floor(totalMedicalRecords * 0.92) ? 'text-green-500' : 'text-red-500'">
-                                {{ totalMedicalRecords >= Math.floor(totalMedicalRecords * 0.92) ? '↑' : '↓' }}
-                                {{ Math.abs(Math.floor(totalMedicalRecords * 0.92) - totalMedicalRecords) }}
-                            </span>
-                            <span class="ml-1">from last month</span>
-                        </div>
-                    </div>
-                </template>
-            </Card>
-        </div>
+            <!-- Statistics Cards -->
+            <div class="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
+                <StatCard title="Total Patients" :value="stats.totalPatients" icon="pi-users" trend="up"
+                    trend-value="+12%" color="bg-gradient-to-r from-blue-500 to-blue-600" :is-loading="isLoading" />
+                <StatCard title="Medical Records" :value="stats.totalMedicalRecords" icon="pi-file" trend="up"
+                    trend-value="+8%" color="bg-gradient-to-r from-emerald-500 to-emerald-600"
+                    :is-loading="isLoading" />
+                <StatCard title="Unbilled Records" :value="stats.unbilledRecords" icon="pi-clock" trend="down"
+                    trend-value="-3%" color="bg-gradient-to-r from-orange-500 to-orange-600" :is-loading="isLoading" />
+                <StatCard title="Billed Records" :value="stats.billedRecords" icon="pi-check-circle" trend="up"
+                    trend-value="+15%" color="bg-gradient-to-r from-purple-500 to-purple-600" :is-loading="isLoading" />
+            </div>
 
-        <div class="col-12 md:col-6 lg:col-3">
-            <Card class="shadow-1 hover:shadow-3 transition-all transition-duration-300 border-1 surface-border">
-                <template #content>
-                    <div class="flex flex-column gap-3">
-                        <div class="flex justify-between align-items-center">
-                            <span class="text-color-secondary font-medium">Unbilled Records</span>
-                            <div class="p-2 border-round surface-card" style="background-color: var(--orange-50)">
-                                <i class="pi pi-clock text-orange-500 text-lg"></i>
-                            </div>
-                        </div>
-                        <div class="text-900 font-bold text-4xl">{{ unbilledRecords }}</div>
-                        <div class="text-sm text-color-secondary">
-                            <span
-                                :class="unbilledRecords >= Math.floor(unbilledRecords * 1.03) ? 'text-green-500' : 'text-red-500'">
-                                {{ unbilledRecords >= Math.floor(unbilledRecords * 1.03) ? '↑' : '↓' }}
-                                {{ Math.abs(Math.floor(unbilledRecords * 1.03) - unbilledRecords) }}
-                            </span>
-                            <span class="ml-1">from last month</span>
-                        </div>
-                    </div>
-                </template>
-            </Card>
-        </div>
-
-        <div class="col-12 md:col-6 lg:col-3">
-            <Card class="shadow-1 hover:shadow-3 transition-all transition-duration-300 border-1 surface-border">
-                <template #content>
-                    <div class="flex flex-column gap-3">
-                        <div class="flex justify-between align-items-center">
-                            <span class="text-color-secondary font-medium">Billed Records</span>
-                            <div class="p-2 border-round surface-card" style="background-color: var(--purple-50)">
-                                <i class="pi pi-check-circle text-purple-500 text-lg"></i>
-                            </div>
-                        </div>
-                        <div class="text-900 font-bold text-4xl">{{ billedRecords }}</div>
-                        <div class="text-sm text-color-secondary">
-                            <span
-                                :class="billedRecords >= Math.floor(billedRecords * 0.85) ? 'text-green-500' : 'text-red-500'">
-                                {{ billedRecords >= Math.floor(billedRecords * 0.85) ? '↑' : '↓' }}
-                                {{ Math.abs(Math.floor(billedRecords * 0.85) - billedRecords) }}
-                            </span>
-                            <span class="ml-1">from last month</span>
-                        </div>
-                    </div>
-                </template>
-            </Card>
-        </div>
-
-        <!-- Second Row - Visualization Cards -->
-        <div class="col-12 lg:col-6">
-            <Card class="shadow-1 border-1 surface-border">
-                <template #title>
-                    <div class="flex align-items-center gap-2">
-                        <i class="pi pi-tags"></i>
-                        <span>Medical Records by Status</span>
-                    </div>
-                </template>
-                <template #content>
-                    <div class="flex flex-column gap-4">
-                        <div v-for="status in statusData" :key="status.label" class="flex flex-column gap-2">
-                            <div class="flex justify-between align-items-center">
-                                <div class="flex align-items-center gap-2">
-                                    <span class="capitalize font-medium">{{ status.label }}</span>
-                                    <span class="text-sm text-color-secondary">({{ status.value }})</span>
+            <!-- Charts Row -->
+            <div class="grid gap-6 lg:grid-cols-2">
+                <Card
+                    class="rounded-xl border border-slate-200 bg-white shadow-sm transition-all duration-300 hover:shadow-lg hover:shadow-slate-200/50">
+                    <template #header>
+                        <div class="border-b border-slate-100 p-6 pb-4">
+                            <div class="flex items-center space-x-2">
+                                <div class="rounded-lg bg-slate-100 p-2">
+                                    <i class="pi pi-chart-bar text-slate-600"></i>
                                 </div>
-                                <span class="font-bold">{{ status.percentage }}%</span>
+                                <h3 class="text-lg font-semibold text-slate-900">Medical Records by Status</h3>
                             </div>
-                            <ProgressBar :value="status.percentage" :class="status.class" class="h-2"></ProgressBar>
                         </div>
-                    </div>
-                </template>
-            </Card>
-        </div>
-
-        <div class="col-12 lg:col-6">
-            <Card class="shadow-1 border-1 surface-border">
-                <template #title>
-                    <div class="flex align-items-center gap-2">
-                        <i class="pi pi-users"></i>
-                        <span>Records by Gender</span>
-                    </div>
-                </template>
-                <template #content>
-                    <div class="flex flex-column gap-4">
-                        <div v-for="gender in genderData" :key="gender.label" class="flex flex-column gap-2">
-                            <div class="flex justify-between align-items-center">
-                                <div class="flex align-items-center gap-2">
-                                    <span class="capitalize font-medium">{{ gender.label }}</span>
-                                    <span class="text-sm text-color-secondary">({{ gender.value }})</span>
+                    </template>
+                    <template #content>
+                        <div class="p-6 pt-0">
+                            <div v-if="isLoading" class="space-y-4">
+                                <div v-for="i in 2" :key="i" class="space-y-2">
+                                    <div class="flex justify-between">
+                                        <Skeleton height="1rem" width="5rem"></Skeleton>
+                                        <Skeleton height="1rem" width="3rem"></Skeleton>
+                                    </div>
+                                    <Skeleton height="0.5rem" width="100%"></Skeleton>
                                 </div>
-                                <span class="font-bold">{{ gender.percentage }}%</span>
                             </div>
-                            <ProgressBar :value="gender.percentage" :class="gender.class" class="h-2"></ProgressBar>
+                            <div v-else class="space-y-6">
+                                <div v-for="status in statusData" :key="status.label" class="space-y-2">
+                                    <div class="flex items-center justify-between text-sm">
+                                        <div class="flex items-center space-x-2">
+                                            <span class="font-medium text-slate-700 capitalize">{{ status.label
+                                                }}</span>
+                                            <span class="text-slate-500">({{ status.count.toLocaleString() }})</span>
+                                        </div>
+                                        <span class="font-semibold text-slate-900">{{ status.percentage }}%</span>
+                                    </div>
+                                    <ProgressBar :value="status.percentage" :class="status.colorClass" class="h-2"
+                                        :show-value="false"></ProgressBar>
+                                </div>
+                            </div>
+                        </div>
+                    </template>
+                </Card>
+
+                <Card
+                    class="rounded-xl border border-slate-200 bg-white shadow-sm transition-all duration-300 hover:shadow-lg hover:shadow-slate-200/50">
+                    <template #header>
+                        <div class="border-b border-slate-100 p-6 pb-4">
+                            <div class="flex items-center space-x-2">
+                                <div class="rounded-lg bg-slate-100 p-2">
+                                    <i class="pi pi-users text-slate-600"></i>
+                                </div>
+                                <h3 class="text-lg font-semibold text-slate-900">Records by Gender</h3>
+                            </div>
+                        </div>
+                    </template>
+                    <template #content>
+                        <div class="p-6 pt-0">
+                            <div v-if="isLoading" class="space-y-4">
+                                <div v-for="i in 2" :key="i" class="space-y-2">
+                                    <div class="flex justify-between">
+                                        <Skeleton height="1rem" width="5rem"></Skeleton>
+                                        <Skeleton height="1rem" width="3rem"></Skeleton>
+                                    </div>
+                                    <Skeleton height="0.5rem" width="100%"></Skeleton>
+                                </div>
+                            </div>
+                            <div v-else class="space-y-6">
+                                <div v-for="gender in genderData" :key="gender.label" class="space-y-2">
+                                    <div class="flex items-center justify-between text-sm">
+                                        <div class="flex items-center space-x-2">
+                                            <span class="font-medium text-slate-700 capitalize">{{ gender.label
+                                                }}</span>
+                                            <span class="text-slate-500">({{ gender.count.toLocaleString() }})</span>
+                                        </div>
+                                        <span class="font-semibold text-slate-900">{{ gender.percentage }}%</span>
+                                    </div>
+                                    <ProgressBar :value="gender.percentage" :class="gender.colorClass" class="h-2"
+                                        :show-value="false"></ProgressBar>
+                                </div>
+                            </div>
+                        </div>
+                    </template>
+                </Card>
+            </div>
+
+            <!-- Monthly Summary -->
+            <Card
+                class="rounded-xl border border-slate-200 bg-white shadow-sm transition-all duration-300 hover:shadow-lg hover:shadow-slate-200/50">
+                <template #header>
+                    <div class="border-b border-slate-100 p-6 pb-4">
+                        <div class="flex items-center space-x-2">
+                            <div class="rounded-lg bg-slate-100 p-2">
+                                <i class="pi pi-calendar text-slate-600"></i>
+                            </div>
+                            <h3 class="text-lg font-semibold text-slate-900">Monthly Summary</h3>
                         </div>
                     </div>
                 </template>
-            </Card>
-        </div>
-
-        <!-- Third Row - Monthly Summary -->
-        <div class="col-12">
-            <Card class="shadow-1 border-1 surface-border">
-                <template #title>
-                    <div class="flex align-items-center gap-2">
-                        <i class="pi pi-calendar"></i>
-                        <span>Monthly Summary</span>
-                    </div>
-                </template>
                 <template #content>
-                    <div class="flex flex-wrap gap-5">
-                        <div v-for="month in monthlySummary" :key="month.name" class="flex flex-column gap-1"
-                            style="min-width: 120px">
-                            <span class="font-bold">{{ month.value }}</span>
-                            <span class="text-sm text-color-secondary">{{ month.name }}</span>
-                            <ProgressBar :value="month.percentage" class="h-2 bg-gray-100"></ProgressBar>
+                    <div class="p-6 pt-0">
+                        <div class="grid gap-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-7">
+                            <div v-for="month in monthlySummary" :key="month.name"
+                                class="group cursor-pointer space-y-3 rounded-lg border border-slate-200 bg-white p-4 transition-all duration-300 hover:border-slate-300 hover:shadow-md">
+                                <div class="space-y-1">
+                                    <p class="text-2xl font-bold text-slate-900">{{ month.value }}</p>
+                                    <p class="text-sm font-medium text-slate-600">{{ month.name }}</p>
+                                </div>
+                                <div class="h-1.5 overflow-hidden rounded-full bg-slate-100">
+                                    <div class="h-full bg-gradient-to-r from-blue-500 to-blue-600 transition-all duration-700 ease-out"
+                                        :style="{ width: `${month.percentage}%` }"></div>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </template>
@@ -176,14 +144,38 @@
 import { ref, computed, onMounted } from 'vue'
 import Card from 'primevue/card'
 import ProgressBar from 'primevue/progressbar'
-import { getMedicalRecords } from '../../api/medical_record'
-import { getPatients } from '../../api/patient'
+import Skeleton from 'primevue/skeleton'
 
-// Stats
-const totalPatients = ref(0)
-const totalMedicalRecords = ref(0)
-const unbilledRecords = ref(0)
-const billedRecords = ref(0)
+// Mock API functions (replace with your actual API calls)
+const getMedicalRecords = async () => {
+    // Simulate API delay
+    await new Promise(resolve => setTimeout(resolve, 1000))
+    return Array.from({ length: 1847 }, (_, i) => ({
+        id: i + 1,
+        status: Math.random() > 0.6 ? 'billed' : 'unbilled',
+        date: new Date(2024, Math.floor(Math.random() * 12), Math.floor(Math.random() * 28) + 1)
+    }))
+}
+
+const getPatients = async () => {
+    await new Promise(resolve => setTimeout(resolve, 800))
+    return Array.from({ length: 2156 }, (_, i) => ({
+        id: i + 1,
+        gender: Math.random() > 0.45 ? 'male' : 'female'
+    }))
+}
+
+// Stats data
+const stats = ref({
+    totalPatients: 0,
+    totalMedicalRecords: 0,
+    unbilledRecords: 0,
+    billedRecords: 0,
+    malePatients: 0,
+    femalePatients: 0
+})
+
+const isLoading = ref(true)
 
 // Monthly summary data
 const monthlySummary = ref([
@@ -197,59 +189,71 @@ const monthlySummary = ref([
 ])
 
 // Computed data for visualizations
-const statusData = computed(() => {
-    const total = totalMedicalRecords.value || 1
-    return [
-        {
-            label: 'billed',
-            value: billedRecords.value,
-            percentage: Math.round((billedRecords.value / total) * 100),
-            class: 'bg-purple-500'
-        },
-        {
-            label: 'unbilled',
-            value: unbilledRecords.value,
-            percentage: Math.round((unbilledRecords.value / total) * 100),
-            class: 'bg-orange-500'
-        }
-    ]
-})
+const statusData = computed(() => [
+    {
+        label: 'billed',
+        count: stats.value.billedRecords,
+        percentage: stats.value.totalMedicalRecords > 0
+            ? Math.round((stats.value.billedRecords / stats.value.totalMedicalRecords) * 100)
+            : 0,
+        colorClass: 'p-progressbar-purple'
+    },
+    {
+        label: 'unbilled',
+        count: stats.value.unbilledRecords,
+        percentage: stats.value.totalMedicalRecords > 0
+            ? Math.round((stats.value.unbilledRecords / stats.value.totalMedicalRecords) * 100)
+            : 0,
+        colorClass: 'p-progressbar-orange'
+    }
+])
 
-const genderData = computed(() => {
-    const maleCount = Math.floor(totalPatients.value * 0.55)
-    const femaleCount = totalPatients.value - maleCount
-    const total = maleCount + femaleCount || 1
+const genderData = computed(() => [
+    {
+        label: 'male',
+        count: stats.value.malePatients,
+        percentage: stats.value.totalPatients > 0
+            ? Math.round((stats.value.malePatients / stats.value.totalPatients) * 100)
+            : 0,
+        colorClass: 'p-progressbar-blue'
+    },
+    {
+        label: 'female',
+        count: stats.value.femalePatients,
+        percentage: stats.value.totalPatients > 0
+            ? Math.round((stats.value.femalePatients / stats.value.totalPatients) * 100)
+            : 0,
+        colorClass: 'p-progressbar-pink'
+    }
+])
 
-    return [
-        {
-            label: 'male',
-            value: maleCount,
-            percentage: Math.round((maleCount / total) * 100),
-            class: 'bg-blue-500'
-        },
-        {
-            label: 'female',
-            value: femaleCount,
-            percentage: Math.round((femaleCount / total) * 100),
-            class: 'bg-pink-500'
-        }
-    ]
-})
-
+// Load statistics
 const loadStats = async () => {
     try {
-        // Fetch patients
-        const patients = await getPatients()
-        totalPatients.value = patients.length
+        isLoading.value = true
 
-        // Fetch medical records
-        const records = await getMedicalRecords()
-        totalMedicalRecords.value = records.length
-        unbilledRecords.value = records.filter(r => r.status === 'unbilled').length
-        billedRecords.value = records.filter(r => r.status === 'billed').length
+        const [patients, records] = await Promise.all([
+            getPatients(),
+            getMedicalRecords()
+        ])
 
+        const maleCount = patients.filter(p => p.gender === 'male').length
+        const femaleCount = patients.filter(p => p.gender === 'female').length
+        const unbilledCount = records.filter(r => r.status === 'unbilled').length
+        const billedCount = records.filter(r => r.status === 'billed').length
+
+        stats.value = {
+            totalPatients: patients.length,
+            totalMedicalRecords: records.length,
+            unbilledRecords: unbilledCount,
+            billedRecords: billedCount,
+            malePatients: maleCount,
+            femalePatients: femaleCount
+        }
     } catch (error) {
         console.error('Error loading dashboard stats:', error)
+    } finally {
+        isLoading.value = false
     }
 }
 
@@ -258,36 +262,128 @@ onMounted(() => {
 })
 </script>
 
+<!-- StatCard Component -->
+<script>
+import { defineComponent } from 'vue'
+
+export const StatCard = defineComponent({
+    name: 'StatCard',
+    props: {
+        title: String,
+        value: Number,
+        icon: String,
+        trend: String,
+        trendValue: String,
+        color: String,
+        isLoading: Boolean
+    },
+    template: `
+    <div class="group relative overflow-hidden rounded-xl border border-slate-200 bg-white p-6 shadow-sm transition-all duration-300 hover:shadow-lg hover:shadow-slate-200/50">
+      <div class="flex items-center justify-between">
+        <div class="space-y-2">
+          <p class="text-sm font-medium text-slate-600">{{ title }}</p>
+          <div class="space-y-1">
+            <div v-if="isLoading" class="h-8 w-24 animate-pulse rounded bg-slate-200"></div>
+            <p v-else class="text-3xl font-bold tracking-tight text-slate-900">
+              {{ value.toLocaleString() }}
+            </p>
+            <div v-if="!isLoading" class="flex items-center space-x-1 text-xs">
+              <i :class="trend === 'up' ? 'pi pi-arrow-up text-emerald-500' : 'pi pi-arrow-down text-red-500'"></i>
+              <span :class="trend === 'up' ? 'text-emerald-600 font-medium' : 'text-red-600 font-medium'">
+                {{ trendValue }}
+              </span>
+              <span class="text-slate-500">from last month</span>
+            </div>
+          </div>
+        </div>
+        <div :class="'rounded-full p-3 transition-transform duration-300 group-hover:scale-110 ' + color">
+          <i :class="'text-white text-xl ' + icon"></i>
+        </div>
+      </div>
+      <div class="absolute inset-0 bg-gradient-to-r from-transparent to-slate-50/50 opacity-0 transition-opacity duration-300 group-hover:opacity-100"></div>
+    </div>
+  `
+})
+</script>
+
 <style scoped>
-.p-card {
-    border-radius: 12px;
+/* Custom ProgressBar colors */
+:deep(.p-progressbar-purple .p-progressbar-value) {
+    background: linear-gradient(to right, #8b5cf6, #7c3aed);
 }
 
-.p-card .p-card-title {
-    font-size: 1.1rem;
-    font-weight: 600;
+:deep(.p-progressbar-orange .p-progressbar-value) {
+    background: linear-gradient(to right, #f97316, #ea580c);
 }
 
-.p-card .p-card-content {
-    padding: 1.25rem;
+:deep(.p-progressbar-blue .p-progressbar-value) {
+    background: linear-gradient(to right, #3b82f6, #2563eb);
 }
 
-.transition-duration-300 {
-    transition-duration: 300ms;
+:deep(.p-progressbar-pink .p-progressbar-value) {
+    background: linear-gradient(to right, #ec4899, #db2777);
 }
 
-/* Make sure cards in the same row have equal height */
+/* Custom Card styling */
+:deep(.p-card) {
+    border: none;
+    box-shadow: none;
+}
+
+:deep(.p-card .p-card-header) {
+    padding: 0;
+    border: none;
+}
+
+:deep(.p-card .p-card-content) {
+    padding: 0;
+}
+
+/* Loading skeleton animations */
+.animate-pulse {
+    animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+@keyframes pulse {
+
+    0%,
+    100% {
+        opacity: 1;
+    }
+
+    50% {
+        opacity: 0.5;
+    }
+}
+
+/* Responsive grid */
 .grid {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 1rem;
+    display: grid;
 }
 
-.col-12,
-.col-md-6,
-.col-lg-3,
-.col-lg-6 {
-    display: flex;
-    flex-direction: column;
+@media (min-width: 640px) {
+    .sm\:grid-cols-2 {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+}
+
+@media (min-width: 768px) {
+    .md\:grid-cols-3 {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+}
+
+@media (min-width: 1024px) {
+    .lg\:grid-cols-4 {
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+    }
+
+    .lg\:grid-cols-7 {
+        grid-template-columns: repeat(7, minmax(0, 1fr));
+    }
+
+    .lg\:grid-cols-2 {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
 }
 </style>

@@ -2,19 +2,19 @@
     <div class="parent">
         <!-- Three cards at the top of the page -->
         <div class="cards-container mb-6 w-full">
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
                 <!-- Card 1: Number of services -->
-                <Card class="shadow-md">
+                <Card class="shadow-lg hover:shadow-xl transition-shadow duration-300 border-l-4 border-blue-500">
                     <template #title>
                         <div class="flex justify-between items-center">
-                            <span class="text-lg font-semibold">Prestations</span>
-                            <span class="text-xl font-bold">{{ services.length }}</span>
+                            <span class="text-lg font-semibold text-gray-700">Prestations</span>
+                            <span class="text-2xl font-bold text-blue-600">{{ services.length }}</span>
                         </div>
                     </template>
                     <template #content>
-                        <div class="flex flex-col items-center">
-                            <i class="pi pi-list text-4xl mb-2 text-blue-600"></i>
-                            <div class="text-sm text-gray-600 mt-2">
+                        <div class="flex flex-col items-center py-2">
+                            <i class="pi pi-list text-5xl mb-3 text-blue-500"></i>
+                            <div class="text-sm text-gray-500 text-center">
                                 Total number of Prestations
                             </div>
                         </div>
@@ -22,16 +22,17 @@
                 </Card>
 
                 <!-- Card 2: Total invoice -->
-                <Card class="shadow-md">
+                <Card class="shadow-lg hover:shadow-xl transition-shadow duration-300 border-l-4 border-indigo-500">
                     <template #title>
-                        <div class="text-lg font-semibold">Total Invoice</div>
+                        <div class="text-lg font-semibold text-gray-700">Total Invoice</div>
                     </template>
                     <template #content>
-                        <div class="flex flex-col items-center">
-                            <div class="text-xl font-bold text-indigo-600">
+                        <div class="flex flex-col items-center py-2">
+                            <i class="pi pi-calculator text-5xl mb-3 text-indigo-500"></i>
+                            <div class="text-2xl font-bold text-indigo-600 mb-2">
                                 {{ formatCurrency(totalFacture) }}
                             </div>
-                            <div class="mt-2 text-sm text-gray-600">
+                            <div class="text-sm text-gray-500 text-center">
                                 Total amount to invoice
                             </div>
                         </div>
@@ -39,16 +40,17 @@
                 </Card>
 
                 <!-- Card 3: Already paid -->
-                <Card class="shadow-md">
+                <Card class="shadow-lg hover:shadow-xl transition-shadow duration-300 border-l-4 border-green-500">
                     <template #title>
-                        <div class="text-lg font-semibold">Already Paid</div>
+                        <div class="text-lg font-semibold text-gray-700">Already Paid</div>
                     </template>
                     <template #content>
-                        <div class="flex flex-col items-center">
-                            <div class="text-xl font-bold text-green-600">
+                        <div class="flex flex-col items-center py-2">
+                            <i class="pi pi-check-circle text-5xl mb-3 text-green-500"></i>
+                            <div class="text-2xl font-bold text-green-600 mb-2">
                                 {{ formatCurrency(totalFacture - partRestante) }}
                             </div>
-                            <div class="mt-2 text-sm text-gray-600">
+                            <div class="text-sm text-gray-500 text-center">
                                 {{ calculatePaymentPercentage() }}% of total amount
                             </div>
                         </div>
@@ -62,51 +64,52 @@
             <!-- Prestation List Section -->
             <div class="div1">
                 <h3 class="text-xl font-bold mb-4">Prestation List</h3>
-                <DataTable :value="filteredServices" stripedRows paginator :rows="4" responsiveLayout="scroll"
-                    class="p-datatable-sm prestation-table">
-                    <Column field="prestation_name">
-                        <template #header>
-                            <div class="flex flex-col">
-                                <span>Prestation</span>
-                                <InputText v-model="nameFilter" placeholder="Filter by Name"
-                                    class="w-full p-inputtext-sm mt-1" />
-                            </div>
-                        </template>
-                        <template #body="{ data }">
-                            <div class="prestation-row" :class="{
-                                'prestation-paid': isPrestaionFullyPaid(data.id),
-                                'prestation-not-paid': !isPrestaionFullyPaid(data.id)
-                            }">
-                                <span>{{ data.prestation_name }}</span>
-                            </div>
-                        </template>
-                    </Column>
+                <div class="table-wrapper">
+                    <DataTable :value="filteredServices" stripedRows paginator :rows="4"
+                        class="p-datatable-sm prestation-table">
+                        <Column field="prestation_name" class="min-w-48">
+                            <template #header>
+                                <div class="flex flex-col w-full">
+                                    <span>Prestation</span>
+                                    <InputText v-model="nameFilter" placeholder="Filter by Name"
+                                        class="w-full p-inputtext-sm mt-1" />
+                                </div>
+                            </template>
+                            <template #body="{ data }">
+                                <div class="prestation-row" :class="{
+                                    'prestation-paid': isPrestaionFullyPaid(data.id),
+                                    'prestation-not-paid': !isPrestaionFullyPaid(data.id)
+                                }">
+                                    <span class="truncate">{{ data.prestation_name }}</span>
+                                </div>
+                            </template>
+                        </Column>
 
-                    <Column field="price" header="Price (DZD)">
-                        <template #body="{ data }">
-                            <div class="flex items-center justify-between w-full gap-2">
-                                <span class="flex-1">{{ formatCurrency(data.price) }}</span>
-                            </div>
-                        </template>
-                    </Column>
+                        <Column field="price" header="Price (DZD)" class="min-w-32">
+                            <template #body="{ data }">
+                                <div class="flex items-center justify-between w-full gap-2">
+                                    <span class="flex-1 text-right">{{ formatCurrency(data.price) }}</span>
+                                </div>
+                            </template>
+                        </Column>
 
-                    <Column header="Amount to Pay (DZD)">
-                        <template #body="{ data }">
-                            <div class="flex flex-col">
-                                <InputNumber v-model="data.amountToPay" mode="currency" currency="DZD"
-                                    :max="getRemainingAmount(data.id)" class="w-32"
-                                    :disabled="isPrestaionFullyPaid(data.id)" />
-                                <small class="text-gray-500 mt-1">
-                                    Remaining: {{ formatCurrency(getRemainingAmount(data.id)) }}
-                                </small>
-                            </div>
-                        </template>
-                    </Column>
-                </DataTable>
+                        <Column header="Amount to Pay (DZD)" class="min-w-40">
+                            <template #body="{ data }">
+                                <div class="flex flex-col">
+                                    <InputNumber v-model="data.amountToPay" mode="currency" currency="DZD"
+                                        :max="getRemainingAmount(data.id)" class="w-full"
+                                        :disabled="isPrestaionFullyPaid(data.id)"
+                                        :placeholder="formatCurrency(getRemainingAmount(data.id))" />
+
+                                </div>
+                            </template>
+                        </Column>
+                    </DataTable>
+                </div>
 
                 <div class="flex justify-end gap-5 items-center mt-4">
                     <div class="flex items-center gap-2">
-                        <label class="font-bold">Total Invoice:</label>
+                        <label class="font-bold">Remaining Invoice:</label>
                         <p class="px-4 py-1 rounded-lg bg-gray-200 text-gray-900">
                             {{ formatCurrency(partRestante) }}
                         </p>
@@ -141,15 +144,18 @@
             <!-- History Section -->
             <div class="div2">
                 <h4 class="text-xl font-bold mb-4">Transactions</h4>
-                <DataTable :value="historiquePaiements" stripedRows responsiveLayout="scroll" class="mt-2">
-                    <Column field="prestation" header="Prestation" />
-                    <Column field="date" header="Payment Date" />
-                    <Column field="montant" header="Amount Paid (DZD)">
-                        <template #body="{ data }">{{ formatCurrency(data.montant) }}</template>
-                    </Column>
-                </DataTable>
-
-
+                <div class="transactions-wrapper">
+                    <DataTable :value="historiquePaiements" stripedRows class="transactions-table" scrollable
+                        scrollHeight="400px">
+                        <Column field="prestation" header="Prestation" class="min-w-32" />
+                        <Column field="date" header="Payment Date" class="min-w-28" />
+                        <Column field="montant" header="Amount Paid (DZD)" class="min-w-32">
+                            <template #body="{ data }">
+                                <span class="text-right block">{{ formatCurrency(data.montant) }}</span>
+                            </template>
+                        </Column>
+                    </DataTable>
+                </div>
             </div>
 
             <Toast />
@@ -325,7 +331,21 @@ const validatePayment = async () => {
 const reloadServices = async () => {
     try {
         const res = await axios.get(`http://localhost:5000/api/cashier/prestations/fiche/${ficheId}`);
-        services.value = res.data.map(p => ({ ...p, amountToPay: 0 })); // Reset amountToPay
+        services.value = res.data.map(p => ({
+            ...p,
+            amountToPay: 0 // Will be set after loading remaining amounts
+        }));
+
+        // Load remaining amounts first, then set default values
+        await loadHistoriquePaiements();
+
+        // Set default amountToPay to remaining amount for unpaid services
+        services.value.forEach(service => {
+            if (!isPrestaionFullyPaid(service.id)) {
+                service.amountToPay = getRemainingAmount(service.id);
+            }
+        });
+
     } catch (error) {
         console.error("Error loading services:", error);
         toast.add({ severity: 'error', summary: 'Error', detail: 'Failed to load services', life: 3000 });
@@ -431,27 +451,169 @@ const formatCurrency = (value) => {
     display: flex;
     flex-direction: column;
     width: 100%;
+    padding: 1rem;
 }
 
 .cards-container {
-    margin-bottom: 1.5rem;
+    margin-bottom: 2rem;
     width: 100%;
+}
+
+/* Enhanced cards styling */
+.cards-container .p-card {
+    background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%);
+    border-radius: 12px;
+    overflow: hidden;
+}
+
+.cards-container .p-card:hover {
+    transform: translateY(-2px);
+    transition: all 0.3s ease;
 }
 
 /* Container for the two parallel tables */
 .tables-container {
     display: flex;
     flex-direction: row;
-    gap: 20px;
+    gap: 24px;
     width: 100%;
+    min-height: 600px;
 }
 
 .div1,
 .div2 {
     flex: 1;
+    display: flex;
+    flex-direction: column;
 }
 
+/* Fix for prestation table - prevent horizontal scroll */
+.table-wrapper {
+    width: 100%;
+    overflow: hidden;
+}
+
+.prestation-table {
+    width: 100%;
+    table-layout: fixed;
+}
+
+.prestation-table .p-datatable-table {
+    width: 100% !important;
+    min-width: auto !important;
+}
+
+.prestation-table .p-column-header-content {
+    width: 100%;
+}
+
+/* Fix for transactions table - enable vertical scroll only with fixed header */
+.transactions-wrapper {
+    flex: 1;
+    overflow: hidden;
+    border: 1px solid #e5e7eb;
+    border-radius: 8px;
+    background: white;
+    height: 450px;
+}
+
+.transactions-table {
+    height: 100%;
+}
+
+.transactions-table .p-datatable-wrapper {
+    height: 100%;
+}
+
+.transactions-table .p-datatable-header {
+    position: sticky;
+    top: 0;
+    z-index: 1;
+    background: white;
+    border-bottom: 1px solid #e5e7eb;
+}
+
+.transactions-table .p-datatable-thead>tr>th {
+    position: sticky;
+    top: 0;
+    z-index: 1;
+    background: #f8fafc;
+    border-bottom: 2px solid #e5e7eb;
+    font-weight: 600;
+}
+
+.transactions-table .p-datatable-table {
+    width: 100%;
+    table-layout: fixed;
+}
+
+/* Column width constraints */
+.min-w-48 {
+    min-width: 12rem;
+    max-width: 20rem;
+}
+
+.min-w-32 {
+    min-width: 8rem;
+    max-width: 12rem;
+}
+
+.min-w-40 {
+    min-width: 10rem;
+    max-width: 14rem;
+}
+
+.min-w-28 {
+    min-width: 7rem;
+    max-width: 10rem;
+}
+
+/* Prestation row styling */
 .prestation-row {
     padding: 4px 0;
+    width: 100%;
+}
+
+.prestation-row span {
+    display: block;
+    width: 100%;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+/* Responsive design */
+@media (max-width: 1024px) {
+    .tables-container {
+        flex-direction: column;
+        gap: 20px;
+    }
+
+    .div1,
+    .div2 {
+        width: 100%;
+    }
+
+    .transactions-table {
+        height: 350px;
+    }
+
+    .transactions-wrapper {
+        height: 350px;
+    }
+}
+
+@media (max-width: 768px) {
+    .parent {
+        padding: 0.5rem;
+    }
+
+    .tables-container {
+        gap: 16px;
+    }
+
+    .cards-container {
+        margin-bottom: 1.5rem;
+    }
 }
 </style>
