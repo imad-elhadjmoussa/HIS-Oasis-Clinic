@@ -1,0 +1,12 @@
+// **Receptionist Routes (Only Reception)**
+// const receptionistRoutes = {
+//     path: "/",
+//     name: "Reception",
+//     component: ReceptionPage,
+//     meta: { requiresAuth: true, roles: ["Reception"] },
+//     children: [
+//         { path: "patients", name: "PatientsReception", component: PatientsList },
+//         { path: "patients/:patientId/fiches", name: "FichesReception", component: FicheList, props: true },
+//         { path: "patients/:patientId/fiches/:ficheId/prestations", name: "PrestationsReception", component: PrestationList, props: true },
+//     ],
+// };

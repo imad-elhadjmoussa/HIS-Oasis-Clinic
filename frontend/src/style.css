@@ -1,0 +1,19 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap');
+@import "tailwindcss";
+
+body {
+    font-family: 'Inter', sans-serif;
+}
+
+.section {
+    @apply mt-10  ;
+}
+
+.header-lg{
+    @apply text-4xl text-center font-bold mb-10;
+}
+
+
+.test{
+    background-color: #02162733;
+}
