@@ -88,17 +88,24 @@ const createMedicalRecordPrestation = async (data) => {
 const getPrestationPriceId = async (contractId, date, specialtyId, prestationId) => {
     const contractHasAvenant = await hasAvenant(contractId);
     if (contractHasAvenant) {
-        const ppriceAvenant = await getPrestationPriceFromAvenant(date, contractId, prestationId);
-        if (!ppriceAvenant) {
-            const [rows] = await db.query(`
+        const avenantId = await isDatePriseEnChargeCompatibleWithAvnant(contractId, date);
+        if (!avenantId) {
+            const ppriceContract = await getPrestationPriceFromContract(contractId, specialtyId, prestationId)
+            return ppriceContract;
+        } else {
+            const ppriceAvenant = await getPrestationPriceFromAvenant(avenantId, prestationId);
+            if (!ppriceAvenant) {
+                const [rows] = await db.query(`
                     SELECT id
                     FROM Contract
                     WHERE is_general = 'yes'
                 `);
-            const publicContractId = rows[0].id;
-            return getPrestationPriceId(publicContractId, date, specialtyId, prestationId);
+                const publicContractId = rows[0].id;
+                return getPrestationPriceId(publicContractId, date, specialtyId, prestationId);
+            }
+            return ppriceAvenant;
         }
-        return ppriceAvenant;
+
     } else {
         const ppriceContract = await getPrestationPriceFromContract(contractId, specialtyId, prestationId)
         if (!ppriceContract) {
@@ -152,12 +159,8 @@ async function hasAvenant(contractId) {
     }
 }
 
-async function getPrestationPriceFromAvenant(date, contractId, prestationListId) {
-    try {
-        // Step 1: Get the latest active Avenant
-        console.log('Fetching Avenant for contractId:', contractId, 'on date:', date);
-        console.log("prestationListId:", prestationListId);
-        const [avenantRows] = await db.query(`
+async function isDatePriseEnChargeCompatibleWithAvnant(contractId, date) {
+    const [avenantRows] = await db.query(`
       SELECT id
       FROM Avenant
       WHERE contract_id = ?
@@ -167,15 +170,14 @@ async function getPrestationPriceFromAvenant(date, contractId, prestationListId)
       LIMIT 1
     `, [contractId, date, date]);
 
+    if (!avenantRows.length) {
+        return null; // No active avenant found
+    }
+    return avenantRows[0].id;
+}
 
-        if(!avenantRows.length){
-            return null;
-        }
-
-        const avenantId = avenantRows[0].id;
-
-        // Step 2: Get PrestationPrice based on avenantId and prestationListId
-        
+async function getPrestationPriceFromAvenant(avenantId, prestationListId) {
+    try {
         const [priceRows] = await db.query(`
       SELECT id
       FROM PrestationPrice
@@ -184,11 +186,10 @@ async function getPrestationPriceFromAvenant(date, contractId, prestationListId)
       LIMIT 1
     `, [avenantId, prestationListId]);
 
-    console.log(priceRows);
-
-
-        return priceRows.length ? priceRows[0].id : null;
-
+        if (!priceRows.length) {
+            return null; // No price found for the given avenant and prestation
+        }
+        return priceRows[0].id;
     } catch (err) {
         console.error('Error in getPrestationPriceId:', err);
         throw err;

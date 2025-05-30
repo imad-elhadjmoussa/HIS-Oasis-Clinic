@@ -105,7 +105,7 @@ const fetchCompanyContracts = async (companyId) => {
     }
 
     try {
-        const response = await fetch(`${api_url}/api/contracts/company/${companyId}`)
+        const response = await fetch(`${api_url}/api/contracts/company/${companyId}?status=active`)
         if (!response.ok) throw new Error('Failed to fetch contracts')
         contracts.value = await response.json()
     } catch (error) {
@@ -226,7 +226,7 @@ watch(() => props.patient, (newPatient) => {
 </script>
 
 <template>
-    <Dialog :visible="visible" @update:visible="closeDialog" :style="{ width: '600px' }" header="Create New Fiche"
+    <Dialog :visible="visible" @update:visible="closeDialog" :style="{ width: '600px' }" header="Create New Medical Record"
         :modal="true" class="p-fluid">
         <div class="grid">
             <!-- Patient Input - Different based on whether patient prop is provided -->
@@ -276,9 +276,9 @@ watch(() => props.patient, (newPatient) => {
             </div>
 
             <div class="field">
-                <label for="agreement" class="block text-sm font-medium mb-1">Agreement</label>
+                <label for="agreement" class="block text-sm font-medium mb-1">Contract</label>
                 <Dropdown id="agreement" v-model="newFiche.contract_id" :options="contracts" optionLabel="contract_name"
-                    optionValue="id" placeholder="Select Agreement" class="w-full" size="small"
+                    optionValue="id" placeholder="Select Contract" class="w-full" size="small"
                     :disabled="!newFiche.company_id" />
                 <small v-if="newFiche.company_id && contracts.length === 0" class="text-gray-500">
                     No contracts available for the selected company

@@ -26,13 +26,13 @@ const toggleSidebar = () => {
 
 // Base menu items - all top level
 const baseMenuItems = [
-    { label: "Dashboard", icon: "pi pi-home", route: "/", exact: true },
+    // { label: "Dashboard", icon: "pi pi-home", route: "/", exact: true },
     { label: "Specialties", icon: "pi pi-briefcase", route: "/specialties" },
     { label: "Prestations", icon: "pi pi-list", route: "/prestations" },
     { label: "Doctors", icon: "pi pi-user", route: "/doctors" },
     { label: "Waiting Rooms", icon: "pi pi-clock", route: "/waiting-rooms" },
     { label: "Modalities", icon: "pi pi-cog", route: "/modalities" },
-    { label: "Settings", icon: "pi pi-cog", route: "/settings" },
+    // { label: "Settings", icon: "pi pi-cog", route: "/settings" },
     { label: "Logout", icon: "pi pi-sign-out", action: "logout" }
 ];
 

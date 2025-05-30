@@ -133,8 +133,6 @@ const getSeverity = (status) => {
                     <div class="flex gap-2">
                         <Button icon="pi pi-pencil" class="p-button-sm p-button-text"
                             @click="$emit('edit-user', data)" />
-                        <Button icon="pi pi-trash" class="p-button-sm p-button-text p-button-danger"
-                            @click="$emit('delete-user', data)" />
                     </div>
                 </template>
             </Column>

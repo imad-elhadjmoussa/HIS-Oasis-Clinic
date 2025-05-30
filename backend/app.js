@@ -97,6 +97,12 @@ const convenctionDashboardRoutes = require('./routes/convention_routs/dashboard.
 app.use('/api/convention/dashboard', convenctionDashboardRoutes);
 
 
+//facturation routes
+const facturationentrepriseRoutes = require('./routes/facturation_routs/entreprise.router.js');
+const facturationpatientRoutes = require('./routes/facturation_routs/patient.route.js'); 
+const facturationinvoicePatientRoutes = require('./routes/facturation_routs/invoice.routes.js');
+const facturationbord =require('./routes/facturation_routs/bord.routes.js');// ✅ importer les routes des patients
+
 
 
 const testRoutes = require('./routes/test.route');
@@ -119,6 +125,12 @@ app.use('/api/modalities', modalityRoutes);
 app.use('/api/cashier/fiches', cashierFicheRoutes)
 app.use('/api/cashier/prestations', cashierPrestationRoutes)
 app.use('/api/cashier/paiements', cashierPaiementRoutes)
+
+// Facturation routes
+app.use('/api/facturation/entreprises', facturationentrepriseRoutes);
+app.use('/api/facturation/patients', facturationpatientRoutes);
+app.use('/api/facturation/invoicepatient', facturationinvoicePatientRoutes); // ✅ ici ta route GET /api/patients fonctionnera
+app.use('/api/facturation',facturationbord);
 
 app.use('/api', testRoutes);
 

@@ -16,8 +16,8 @@ const mysql = require('mysql2/promise');
 const db = mysql.createPool({
   host: 'localhost',
   user: 'root',
-  database: 'oasisclinic3',
-  password: 'imad123',
+  database: 'oasisclinic',
+  password: 'Elhou1234@',
   timezone: '+01:00'
 });
 

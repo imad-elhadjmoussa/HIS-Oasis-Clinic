@@ -9,9 +9,11 @@ import { useRouter } from 'vue-router';
 import { useToast } from 'primevue/usetoast';
 import { deleteMedicalRecord } from '../../api/medical_record.js';
 import { formatDate } from '../../pages/Reception/index.js';
+import { useUserStore } from '../../stors/user.js';
 
 const router = useRouter();
 const toast = useToast();
+const userStore = useUserStore();
 
 const props = defineProps({
     records: {
@@ -27,7 +29,11 @@ const deleteDialogVisible = ref(false);
 const recordToDelete = ref(null);
 
 const navigateToDetailsPage = (ficheId) => {
-    router.push(`medical-records/${ficheId}`);
+    if (userStore.role === "Admin") {
+        router.push(`/reception/medical-records/${ficheId}`);
+    } else {
+        router.push(`/medical-records/${ficheId}`);
+    }
 };
 
 const confirmDelete = (record) => {
@@ -62,14 +68,15 @@ const deleteRecord = async () => {
 
 // Status severity based on completion
 const getStatusSeverity = (status) => {
-    return status === 'billed' ? 'success' : 'warn';
+    return status === 'billed' ? 'success' : 'danger';
 };
 </script>
 
 <template>
     <div>
         <DataTable :value="records" :paginator="true" :rows="5" responsiveLayout="scroll" class="p-datatable-sm">
-            <Column field="id" header="Fiche ID" sortable style="width: 100px"></Column>
+            <Column field="id" header="Medical Record ID" sortable
+                style="width: 100px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;"></Column>
             <Column field="patient_name" header="Patient" sortable>
                 <template #body="{ data }">
                     <div class="font-medium">{{ data.first_name }} {{ data.last_name }}</div>
@@ -83,11 +90,10 @@ const getStatusSeverity = (status) => {
             </Column>
             <Column field="status" header="Status" sortable style="width: 150px">
                 <template #body="{ data }">
-                    <Tag :value="data.status" :severity="getStatusSeverity(data.status)"
-                        class="capitalize" />
+                    <Tag :value="data.status" :severity="getStatusSeverity(data.status)" class="capitalize" />
                 </template>
             </Column>
-            
+
             <Column header="Actions" style="width: 120px">
                 <template #body="{ data }">
                     <div class="flex gap-2">

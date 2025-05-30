@@ -20,7 +20,9 @@ const getMedicalsRecords = async () => {
       JOIN 
         Company ON MedicalRecord.company_id = Company.id
       JOIN 
-        Contract ON MedicalRecord.contract_id = Contract.id;
+        Contract ON MedicalRecord.contract_id = Contract.id
+        ORDER BY 
+  MedicalRecord.id DESC;
     `);
   return rows;
 };

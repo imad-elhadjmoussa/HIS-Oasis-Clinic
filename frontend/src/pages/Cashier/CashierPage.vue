@@ -6,7 +6,7 @@
       <InputText v-model="searchQuery" placeholder="Search Fiche ID..." class="p-inputtext-sm w-full md:w-[50%]" />
     </div>
 
-    <DataTable :value="filteredFiches" paginator :rows="5" class="p-datatable-sm">
+    <DataTable :value="filteredFiches" paginator :rows="9" class="p-datatable-sm">
       <Column field="id" header="Fiche ID">
         <template #body="{ data }">
           <span>{{ data.id }}</span>

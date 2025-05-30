@@ -1,389 +1,592 @@
 <template>
-    <div class="min-h-screen bg-slate-50 p-6">
-        <div class="mx-auto max-w-7xl space-y-8">
-            <!-- Header -->
-            <div class="space-y-2">
-                <h1 class="text-3xl font-bold tracking-tight text-slate-900">Medical Dashboard</h1>
-                <p class="text-slate-600">Overview of patients and medical records</p>
-            </div>
-
-            <!-- Statistics Cards -->
-            <div class="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
-                <StatCard title="Total Patients" :value="stats.totalPatients" icon="pi-users" trend="up"
-                    trend-value="+12%" color="bg-gradient-to-r from-blue-500 to-blue-600" :is-loading="isLoading" />
-                <StatCard title="Medical Records" :value="stats.totalMedicalRecords" icon="pi-file" trend="up"
-                    trend-value="+8%" color="bg-gradient-to-r from-emerald-500 to-emerald-600"
-                    :is-loading="isLoading" />
-                <StatCard title="Unbilled Records" :value="stats.unbilledRecords" icon="pi-clock" trend="down"
-                    trend-value="-3%" color="bg-gradient-to-r from-orange-500 to-orange-600" :is-loading="isLoading" />
-                <StatCard title="Billed Records" :value="stats.billedRecords" icon="pi-check-circle" trend="up"
-                    trend-value="+15%" color="bg-gradient-to-r from-purple-500 to-purple-600" :is-loading="isLoading" />
-            </div>
-
-            <!-- Charts Row -->
-            <div class="grid gap-6 lg:grid-cols-2">
-                <Card
-                    class="rounded-xl border border-slate-200 bg-white shadow-sm transition-all duration-300 hover:shadow-lg hover:shadow-slate-200/50">
-                    <template #header>
-                        <div class="border-b border-slate-100 p-6 pb-4">
-                            <div class="flex items-center space-x-2">
-                                <div class="rounded-lg bg-slate-100 p-2">
-                                    <i class="pi pi-chart-bar text-slate-600"></i>
-                                </div>
-                                <h3 class="text-lg font-semibold text-slate-900">Medical Records by Status</h3>
-                            </div>
-                        </div>
-                    </template>
-                    <template #content>
-                        <div class="p-6 pt-0">
-                            <div v-if="isLoading" class="space-y-4">
-                                <div v-for="i in 2" :key="i" class="space-y-2">
-                                    <div class="flex justify-between">
-                                        <Skeleton height="1rem" width="5rem"></Skeleton>
-                                        <Skeleton height="1rem" width="3rem"></Skeleton>
-                                    </div>
-                                    <Skeleton height="0.5rem" width="100%"></Skeleton>
-                                </div>
-                            </div>
-                            <div v-else class="space-y-6">
-                                <div v-for="status in statusData" :key="status.label" class="space-y-2">
-                                    <div class="flex items-center justify-between text-sm">
-                                        <div class="flex items-center space-x-2">
-                                            <span class="font-medium text-slate-700 capitalize">{{ status.label
-                                                }}</span>
-                                            <span class="text-slate-500">({{ status.count.toLocaleString() }})</span>
-                                        </div>
-                                        <span class="font-semibold text-slate-900">{{ status.percentage }}%</span>
-                                    </div>
-                                    <ProgressBar :value="status.percentage" :class="status.colorClass" class="h-2"
-                                        :show-value="false"></ProgressBar>
-                                </div>
-                            </div>
-                        </div>
-                    </template>
-                </Card>
-
-                <Card
-                    class="rounded-xl border border-slate-200 bg-white shadow-sm transition-all duration-300 hover:shadow-lg hover:shadow-slate-200/50">
-                    <template #header>
-                        <div class="border-b border-slate-100 p-6 pb-4">
-                            <div class="flex items-center space-x-2">
-                                <div class="rounded-lg bg-slate-100 p-2">
-                                    <i class="pi pi-users text-slate-600"></i>
-                                </div>
-                                <h3 class="text-lg font-semibold text-slate-900">Records by Gender</h3>
-                            </div>
-                        </div>
-                    </template>
-                    <template #content>
-                        <div class="p-6 pt-0">
-                            <div v-if="isLoading" class="space-y-4">
-                                <div v-for="i in 2" :key="i" class="space-y-2">
-                                    <div class="flex justify-between">
-                                        <Skeleton height="1rem" width="5rem"></Skeleton>
-                                        <Skeleton height="1rem" width="3rem"></Skeleton>
-                                    </div>
-                                    <Skeleton height="0.5rem" width="100%"></Skeleton>
-                                </div>
-                            </div>
-                            <div v-else class="space-y-6">
-                                <div v-for="gender in genderData" :key="gender.label" class="space-y-2">
-                                    <div class="flex items-center justify-between text-sm">
-                                        <div class="flex items-center space-x-2">
-                                            <span class="font-medium text-slate-700 capitalize">{{ gender.label
-                                                }}</span>
-                                            <span class="text-slate-500">({{ gender.count.toLocaleString() }})</span>
-                                        </div>
-                                        <span class="font-semibold text-slate-900">{{ gender.percentage }}%</span>
-                                    </div>
-                                    <ProgressBar :value="gender.percentage" :class="gender.colorClass" class="h-2"
-                                        :show-value="false"></ProgressBar>
-                                </div>
-                            </div>
-                        </div>
-                    </template>
-                </Card>
-            </div>
-
-            <!-- Monthly Summary -->
-            <Card
-                class="rounded-xl border border-slate-200 bg-white shadow-sm transition-all duration-300 hover:shadow-lg hover:shadow-slate-200/50">
-                <template #header>
-                    <div class="border-b border-slate-100 p-6 pb-4">
-                        <div class="flex items-center space-x-2">
-                            <div class="rounded-lg bg-slate-100 p-2">
-                                <i class="pi pi-calendar text-slate-600"></i>
-                            </div>
-                            <h3 class="text-lg font-semibold text-slate-900">Monthly Summary</h3>
-                        </div>
-                    </div>
-                </template>
-                <template #content>
-                    <div class="p-6 pt-0">
-                        <div class="grid gap-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-7">
-                            <div v-for="month in monthlySummary" :key="month.name"
-                                class="group cursor-pointer space-y-3 rounded-lg border border-slate-200 bg-white p-4 transition-all duration-300 hover:border-slate-300 hover:shadow-md">
-                                <div class="space-y-1">
-                                    <p class="text-2xl font-bold text-slate-900">{{ month.value }}</p>
-                                    <p class="text-sm font-medium text-slate-600">{{ month.name }}</p>
-                                </div>
-                                <div class="h-1.5 overflow-hidden rounded-full bg-slate-100">
-                                    <div class="h-full bg-gradient-to-r from-blue-500 to-blue-600 transition-all duration-700 ease-out"
-                                        :style="{ width: `${month.percentage}%` }"></div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </template>
-            </Card>
-        </div>
+  <div class="reception-dashboard p-4  min-h-screen">
+    <div class="flex justify-between items-center mb-6">
+      <h1 class="text-3xl font-bold text-gray-800">Reception Dashboard</h1>
+      <div class="flex items-center space-x-4">
+        <span class="text-gray-600">{{ currentDateTime }}</span>
+        <Avatar icon="pi pi-user" class="bg-blue-500" />
+      </div>
     </div>
-</template>
 
-<script setup>
-import { ref, computed, onMounted } from 'vue'
-import Card from 'primevue/card'
-import ProgressBar from 'primevue/progressbar'
-import Skeleton from 'primevue/skeleton'
+    <!-- Animated Stats Cards -->
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+      <transition-group name="fade" appear>
+        <Card key="total-patients"
+          class="shadow-md hover:shadow-lg transition-all duration-300 transform hover:-translate-y-1">
+          <template #content>
+            <div class="flex items-center justify-between">
+              <div>
+                <span class="block text-gray-500 font-medium">Total Patients</span>
+                <span class="text-3xl font-bold">{{ animatedStats.totalPatients }}</span>
+                <div class="mt-2">
+                  <span :class="['text-sm', statsChange.newPatients > 0 ? 'text-green-500' : 'text-red-500']">
+                    <i :class="[statsChange.newPatients > 0 ? 'pi pi-arrow-up' : 'pi pi-arrow-down']"></i>
+                    {{ Math.abs(statsChange.newPatients) }} this week
+                  </span>
+                </div>
+              </div>
+              <div class="relative w-16 h-16">
+                <vue3-chart-js :id="'patients-chart'" :type="'doughnut'" :data="patientsChartData"
+                  :options="doughnutOptions"></vue3-chart-js>
+              </div>
+            </div>
+          </template>
+        </Card>
 
-// Mock API functions (replace with your actual API calls)
-const getMedicalRecords = async () => {
-    // Simulate API delay
-    await new Promise(resolve => setTimeout(resolve, 1000))
-    return Array.from({ length: 1847 }, (_, i) => ({
-        id: i + 1,
-        status: Math.random() > 0.6 ? 'billed' : 'unbilled',
-        date: new Date(2024, Math.floor(Math.random() * 12), Math.floor(Math.random() * 28) + 1)
-    }))
-}
+        <Card key="today-records"
+          class="shadow-md hover:shadow-lg transition-all duration-300 transform hover:-translate-y-1">
+          <template #content>
+            <div class="flex items-center justify-between">
+              <div>
+                <span class="block text-gray-500 font-medium">Today's Records</span>
+                <span class="text-3xl font-bold">{{ animatedStats.todayRecords }}</span>
+                <div class="mt-2">
+                  <span class="text-sm text-blue-500">
+                    <i class="pi pi-chart-line"></i>
+                    {{ Math.round((stats.todayRecords / stats.totalPatients) * 100) }}% of patients
+                  </span>
+                </div>
+              </div>
+              <div class="relative w-16 h-16">
+                <vue3-chart-js :id="'today-chart'" :type="'bar'" :data="todayChartData"
+                  :options="miniBarOptions"></vue3-chart-js>
+              </div>
+            </div>
+          </template>
+        </Card>
 
-const getPatients = async () => {
-    await new Promise(resolve => setTimeout(resolve, 800))
-    return Array.from({ length: 2156 }, (_, i) => ({
-        id: i + 1,
-        gender: Math.random() > 0.45 ? 'male' : 'female'
-    }))
-}
+        <Card key="unbilled-records"
+          class="shadow-md hover:shadow-lg transition-all duration-300 transform hover:-translate-y-1">
+          <template #content>
+            <div class="flex items-center justify-between">
+              <div>
+                <span class="block text-gray-500 font-medium">Unbilled Records</span>
+                <span class="text-3xl font-bold">{{ animatedStats.unbilledRecords }}</span>
+                <div class="mt-2">
+                  <span class="text-sm text-orange-500">
+                    <i class="pi pi-exclamation-triangle"></i>
+                    {{ Math.round((stats.unbilledRecords / stats.todayRecords) * 100) || 0 }}% of today
+                  </span>
+                </div>
+              </div>
+              <div class="relative w-16 h-16">
+                <vue3-chart-js :id="'unbilled-chart'" :type="'doughnut'" :data="unbilledChartData"
+                  :options="doughnutOptions"></vue3-chart-js>
+              </div>
+            </div>
+          </template>
+        </Card>
 
-// Stats data
-const stats = ref({
-    totalPatients: 0,
-    totalMedicalRecords: 0,
-    unbilledRecords: 0,
-    billedRecords: 0,
-    malePatients: 0,
-    femalePatients: 0
-})
+        <Card key="new-patients"
+          class="shadow-md hover:shadow-lg transition-all duration-300 transform hover:-translate-y-1">
+          <template #content>
+            <div class="flex items-center justify-between">
+              <div>
+                <span class="block text-gray-500 font-medium">New Patients (7d)</span>
+                <span class="text-3xl font-bold">{{ animatedStats.newPatients }}</span>
+                <div class="mt-2">
+                  <span :class="['text-sm', statsChange.newPatients > 0 ? 'text-green-500' : 'text-red-500']">
+                    <i :class="[statsChange.newPatients > 0 ? 'pi pi-arrow-up' : 'pi pi-arrow-down']"></i>
+                    {{ Math.abs(statsChange.newPatients) }} from last week
+                  </span>
+                </div>
+              </div>
+              <div class="relative w-16 h-16">
+                <vue3-chart-js :id="'new-patients-chart'" :type="'line'" :data="newPatientsChartData"
+                  :options="miniLineOptions"></vue3-chart-js>
+              </div>
+            </div>
+          </template>
+        </Card>
+      </transition-group>
+    </div>
 
-const isLoading = ref(true)
+    <!-- Main Graphs -->
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+      <!-- Patients Trend -->
+     
 
-// Monthly summary data
-const monthlySummary = ref([
-    { name: 'Jan', value: '1,234', percentage: 70 },
-    { name: 'Feb', value: '1,543', percentage: 85 },
-    { name: 'Mar', value: '1,876', percentage: 95 },
-    { name: 'Apr', value: '1,432', percentage: 75 },
-    { name: 'May', value: '1,987', percentage: 100 },
-    { name: 'Jun', value: '1,654', percentage: 85 },
-    { name: 'Jul', value: '1,321', percentage: 70 }
-])
+      <!-- Records Status -->
+      <Card class="shadow-md">
+        <template #title>Records Status Distribution</template>
+        <template #content>
+          <div class="">
+            <vue3-chart-js v-if="!loadingRecords" :id="'records-status-chart'" :type="'pie'" :data="recordsStatusData"
+              :options="pieChartOptions"></vue3-chart-js>
+            <Skeleton v-else  />
+          </div>
+        </template>
+      </Card>
 
-// Computed data for visualizations
-const statusData = computed(() => [
-    {
-        label: 'billed',
-        count: stats.value.billedRecords,
-        percentage: stats.value.totalMedicalRecords > 0
-            ? Math.round((stats.value.billedRecords / stats.value.totalMedicalRecords) * 100)
-            : 0,
-        colorClass: 'p-progressbar-purple'
-    },
-    {
-        label: 'unbilled',
-        count: stats.value.unbilledRecords,
-        percentage: stats.value.totalMedicalRecords > 0
-            ? Math.round((stats.value.unbilledRecords / stats.value.totalMedicalRecords) * 100)
-            : 0,
-        colorClass: 'p-progressbar-orange'
-    }
-])
-
-const genderData = computed(() => [
-    {
-        label: 'male',
-        count: stats.value.malePatients,
-        percentage: stats.value.totalPatients > 0
-            ? Math.round((stats.value.malePatients / stats.value.totalPatients) * 100)
-            : 0,
-        colorClass: 'p-progressbar-blue'
-    },
-    {
-        label: 'female',
-        count: stats.value.femalePatients,
-        percentage: stats.value.totalPatients > 0
-            ? Math.round((stats.value.femalePatients / stats.value.totalPatients) * 100)
-            : 0,
-        colorClass: 'p-progressbar-pink'
-    }
-])
-
-// Load statistics
-const loadStats = async () => {
-    try {
-        isLoading.value = true
-
-        const [patients, records] = await Promise.all([
-            getPatients(),
-            getMedicalRecords()
-        ])
-
-        const maleCount = patients.filter(p => p.gender === 'male').length
-        const femaleCount = patients.filter(p => p.gender === 'female').length
-        const unbilledCount = records.filter(r => r.status === 'unbilled').length
-        const billedCount = records.filter(r => r.status === 'billed').length
-
-        stats.value = {
-            totalPatients: patients.length,
-            totalMedicalRecords: records.length,
-            unbilledRecords: unbilledCount,
-            billedRecords: billedCount,
-            malePatients: maleCount,
-            femalePatients: femaleCount
-        }
-    } catch (error) {
-        console.error('Error loading dashboard stats:', error)
-    } finally {
-        isLoading.value = false
-    }
-}
-
-onMounted(() => {
-    loadStats()
-})
-</script>
-
-<!-- StatCard Component -->
-<script>
-import { defineComponent } from 'vue'
-
-export const StatCard = defineComponent({
-    name: 'StatCard',
-    props: {
-        title: String,
-        value: Number,
-        icon: String,
-        trend: String,
-        trendValue: String,
-        color: String,
-        isLoading: Boolean
-    },
-    template: `
-    <div class="group relative overflow-hidden rounded-xl border border-slate-200 bg-white p-6 shadow-sm transition-all duration-300 hover:shadow-lg hover:shadow-slate-200/50">
-      <div class="flex items-center justify-between">
-        <div class="space-y-2">
-          <p class="text-sm font-medium text-slate-600">{{ title }}</p>
-          <div class="space-y-1">
-            <div v-if="isLoading" class="h-8 w-24 animate-pulse rounded bg-slate-200"></div>
-            <p v-else class="text-3xl font-bold tracking-tight text-slate-900">
-              {{ value.toLocaleString() }}
-            </p>
-            <div v-if="!isLoading" class="flex items-center space-x-1 text-xs">
-              <i :class="trend === 'up' ? 'pi pi-arrow-up text-emerald-500' : 'pi pi-arrow-down text-red-500'"></i>
-              <span :class="trend === 'up' ? 'text-emerald-600 font-medium' : 'text-red-600 font-medium'">
-                {{ trendValue }}
-              </span>
-              <span class="text-slate-500">from last month</span>
+      <!-- Gender/Age Distribution -->
+      <Card class="shadow-md ">
+        <template #title>Patient Demographics</template>
+        <template #content>
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-6  ">
+            <div class="h-64">
+              <h3 class="text-center font-medium text-gray-600 mb-2">Gender Distribution</h3>
+              <vue3-chart-js v-if="!loadingPatients" :id="'gender-distribution-chart'" :type="'doughnut'"
+                :data="genderDistributionData" :options="doughnutOptions"></vue3-chart-js>
+              <Skeleton v-else height="100%" />
+            </div>
+            <div class="h-64">
+              <h3 class="text-center font-medium text-gray-600 mb-2">Age Groups</h3>
+              <vue3-chart-js v-if="!loadingPatients" :id="'age-distribution-chart'" :type="'bar'"
+                :data="ageDistributionData" :options="barChartOptions"></vue3-chart-js>
+              <Skeleton v-else height="100%" />
             </div>
           </div>
-        </div>
-        <div :class="'rounded-full p-3 transition-transform duration-300 group-hover:scale-110 ' + color">
-          <i :class="'text-white text-xl ' + icon"></i>
-        </div>
-      </div>
-      <div class="absolute inset-0 bg-gradient-to-r from-transparent to-slate-50/50 opacity-0 transition-opacity duration-300 group-hover:opacity-100"></div>
+        </template>
+      </Card>
     </div>
-  `
-})
+
+
+  </div>
+</template>
+
+<script>
+import { ref, onMounted, computed, watch } from 'vue';
+import axios from 'axios';
+import Avatar from 'primevue/avatar';
+import Card from 'primevue/card';
+import Dropdown from 'primevue/dropdown';
+import Skeleton from 'primevue/skeleton';
+import Vue3ChartJs from '@j-t-mcc/vue3-chartjs';
+import { useIntervalFn } from '@vueuse/core';
+
+export default {
+  name: 'ReceptionDashboard',
+  components: {
+    Avatar,
+    Card,
+    Dropdown,
+    Skeleton,
+    Vue3ChartJs,
+  },
+  setup() {
+    const allPatients = ref([]);
+    const recentMedicalRecords = ref([]);
+    const loadingPatients = ref(true);
+    const loadingRecords = ref(true);
+
+    const currentDateTime = computed(() => {
+      return new Date().toLocaleString('en-US', {
+        weekday: 'long',
+        year: 'numeric',
+        month: 'long',
+        day: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit'
+      });
+    });
+
+    const stats = ref({
+      totalPatients: 0,
+      todayRecords: 0,
+      unbilledRecords: 0,
+      newPatients: 0,
+    });
+
+    const animatedStats = ref({
+      totalPatients: 0,
+      todayRecords: 0,
+      unbilledRecords: 0,
+      newPatients: 0,
+    });
+
+    const statsChange = ref({
+      newPatients: 0,
+    });
+
+    const selectedPeriod = ref({ label: 'Last 30 Days', value: 30 });
+    const periodOptions = ref([
+      { label: 'Last 7 Days', value: 7 },
+      { label: 'Last 30 Days', value: 30 },
+      { label: 'Last 90 Days', value: 90 },
+      { label: 'This Year', value: 365 },
+    ]);
+
+    // Chart data and options
+    const patientsChartData = computed(() => ({
+      labels: ['Male', 'Female', 'Other'],
+      datasets: [{
+        data: [
+          allPatients.value.filter(p => p.gender?.toLowerCase() === 'male').length,
+          allPatients.value.filter(p => p.gender?.toLowerCase() === 'female').length,
+          allPatients.value.filter(p => !['male', 'female'].includes(p.gender?.toLowerCase())).length
+        ],
+        backgroundColor: ['#3b82f6', '#ec4899', '#10b981'],
+        borderWidth: 0,
+      }]
+    }));
+
+    const todayChartData = computed(() => ({
+      labels: ['Today'],
+      datasets: [{
+        label: 'Records',
+        data: [stats.value.todayRecords],
+        backgroundColor: ['#10b981'],
+        borderWidth: 0,
+      }]
+    }));
+
+    const unbilledChartData = computed(() => ({
+      labels: ['Unbilled', 'Billed'],
+      datasets: [{
+        data: [stats.value.unbilledRecords, stats.value.todayRecords - stats.value.unbilledRecords],
+        backgroundColor: ['#f59e0b', '#10b981'],
+        borderWidth: 0,
+      }]
+    }));
+
+    const newPatientsChartData = computed(() => ({
+      labels: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
+      datasets: [{
+        label: 'New Patients',
+        data: [12, 19, 8, 15, 12, 6, 9], // This would be dynamic in a real app
+        borderColor: '#8b5cf6',
+        backgroundColor: 'rgba(139, 92, 246, 0.1)',
+        fill: true,
+        tension: 0.4,
+      }]
+    }));
+
+    const patientsTrendData = computed(() => {
+      const days = selectedPeriod.value.value;
+      const labels = Array.from({ length: days }, (_, i) => {
+        const date = new Date();
+        date.setDate(date.getDate() - (days - i - 1));
+        return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+      });
+
+      // Simulate data - in a real app, you'd group by date from your API
+      const data = labels.map((_, i) => Math.floor(Math.random() * 20) + 5);
+
+      return {
+        labels,
+        datasets: [{
+          label: 'Patients',
+          data,
+          borderColor: '#3b82f6',
+          backgroundColor: 'rgba(59, 130, 246, 0.1)',
+          fill: true,
+          tension: 0.4,
+        }]
+      };
+    });
+
+    const recordsStatusData = computed(() => {
+      const statusCounts = {
+        unbilled: 0,
+        billed: 0,
+        paid: 0,
+        other: 0
+      };
+
+      recentMedicalRecords.value.forEach(record => {
+        const status = record.status?.toLowerCase() || 'other';
+        if (statusCounts.hasOwnProperty(status)) {
+          statusCounts[status]++;
+        } else {
+          statusCounts.other++;
+        }
+      });
+
+      return {
+        labels: ['Unbilled', 'Billed', 'Paid', 'Other'],
+        datasets: [{
+          data: [statusCounts.unbilled, statusCounts.billed, statusCounts.paid, statusCounts.other],
+          backgroundColor: ['#f59e0b', '#3b82f6', '#10b981', '#6b7280'],
+          borderWidth: 0,
+        }]
+      };
+    });
+
+    const genderDistributionData = computed(() => ({
+      labels: ['Male', 'Female', 'Other'],
+      datasets: [{
+        data: [
+          allPatients.value.filter(p => p.gender?.toLowerCase() === 'male').length,
+          allPatients.value.filter(p => p.gender?.toLowerCase() === 'female').length,
+          allPatients.value.filter(p => !['male', 'female'].includes(p.gender?.toLowerCase())).length
+        ],
+        backgroundColor: ['#3b82f6', '#ec4899', '#10b981'],
+        borderWidth: 0,
+      }]
+    }));
+
+    const ageDistributionData = computed(() => {
+      const ageGroups = {
+        '0-18': 0,
+        '19-30': 0,
+        '31-45': 0,
+        '46-60': 0,
+        '61+': 0
+      };
+
+      allPatients.value.forEach(patient => {
+        if (!patient.date_of_birth) return;
+
+        const birthDate = new Date(patient.date_of_birth);
+        const age = new Date().getFullYear() - birthDate.getFullYear();
+
+        if (age <= 18) ageGroups['0-18']++;
+        else if (age <= 30) ageGroups['19-30']++;
+        else if (age <= 45) ageGroups['31-45']++;
+        else if (age <= 60) ageGroups['46-60']++;
+        else ageGroups['61+']++;
+      });
+
+      return {
+        labels: Object.keys(ageGroups),
+        datasets: [{
+          label: 'Patients',
+          data: Object.values(ageGroups),
+          backgroundColor: ['#93c5fd', '#60a5fa', '#3b82f6', '#2563eb', '#1d4ed8'],
+          borderWidth: 0,
+        }]
+      };
+    });
+
+    // Chart options
+    const doughnutOptions = {
+      cutout: '70%',
+      plugins: {
+        legend: {
+          display: false,
+        },
+        tooltip: {
+          enabled: false,
+        },
+      },
+      responsive: true,
+      maintainAspectRatio: false,
+    };
+
+    const miniBarOptions = {
+      scales: {
+        x: { display: false },
+        y: { display: false },
+      },
+      plugins: {
+        legend: { display: false },
+        tooltip: { enabled: false },
+      },
+      responsive: true,
+      maintainAspectRatio: false,
+    };
+
+    const miniLineOptions = {
+      scales: {
+        x: { display: false },
+        y: { display: false },
+      },
+      plugins: {
+        legend: { display: false },
+        tooltip: { enabled: false },
+      },
+      elements: {
+        point: { radius: 0 },
+      },
+      responsive: true,
+      maintainAspectRatio: false,
+    };
+
+    const trendChartOptions = {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {
+        legend: { display: false },
+      },
+      scales: {
+        y: {
+          beginAtZero: true,
+          grid: { color: 'rgba(0, 0, 0, 0.05)' },
+        },
+        x: {
+          grid: { display: false },
+        },
+      },
+    };
+
+    const pieChartOptions = {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {
+        legend: {
+          position: 'right',
+        },
+      },
+    };
+
+    const barChartOptions = {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {
+        legend: { display: false },
+      },
+      scales: {
+        y: {
+          beginAtZero: true,
+          grid: { color: 'rgba(0, 0, 0, 0.05)' },
+        },
+        x: {
+          grid: { display: false },
+        },
+      },
+    };
+
+    const fetchData = async () => {
+      try {
+        // Fetch patients
+        const patientsResponse = await axios.get('http://localhost:5000/api/patients');
+        if (patientsResponse.data) {
+          allPatients.value = patientsResponse.data;
+          stats.value.totalPatients = patientsResponse.data.length;
+
+          // Calculate new patients (created in last 7 days)
+          const weekAgo = new Date();
+          weekAgo.setDate(weekAgo.getDate() - 7);
+          stats.value.newPatients = patientsResponse.data.filter(patient => {
+            const createdDate = new Date(patient.created_at || patient.date_of_birth);
+            return createdDate > weekAgo;
+          }).length;
+        }
+        loadingPatients.value = false;
+
+        // Fetch medical records
+        const recordsResponse = await axios.get('http://localhost:5000/api/medical-records');
+        if (recordsResponse.data) {
+          recentMedicalRecords.value = recordsResponse.data;
+
+          // Calculate today's records
+          const today = new Date();
+          stats.value.todayRecords = recordsResponse.data.filter(record => {
+            const recordDate = new Date(record.created_at);
+            return (
+              recordDate.getDate() === today.getDate() &&
+              recordDate.getMonth() === today.getMonth() &&
+              recordDate.getFullYear() === today.getFullYear()
+            );
+          }).length;
+
+          // Calculate unbilled records
+          stats.value.unbilledRecords = recordsResponse.data.filter(record =>
+            record.status?.toLowerCase() === 'unbilled'
+          ).length;
+        }
+        loadingRecords.value = false;
+      } catch (error) {
+        console.error('Error fetching data:', error);
+        loadingPatients.value = false;
+        loadingRecords.value = false;
+      }
+    };
+
+    // Animate stats counting up
+    const animateStats = () => {
+      const duration = 1500;
+      const startTime = Date.now();
+
+      const animate = () => {
+        const progress = Math.min(1, (Date.now() - startTime) / duration);
+
+        animatedStats.value.totalPatients = Math.floor(progress * stats.value.totalPatients);
+        animatedStats.value.todayRecords = Math.floor(progress * stats.value.todayRecords);
+        animatedStats.value.unbilledRecords = Math.floor(progress * stats.value.unbilledRecords);
+        animatedStats.value.newPatients = Math.floor(progress * stats.value.newPatients);
+
+        if (progress < 1) {
+          requestAnimationFrame(animate);
+        }
+      };
+
+      animate();
+    };
+
+    // Simulate week-over-week change (in a real app, you'd compare with historical data)
+    const calculateChanges = () => {
+      statsChange.value.newPatients = Math.floor(Math.random() * 10) - 3; // Random change between -3 and +7
+    };
+
+    onMounted(() => {
+      fetchData();
+      calculateChanges();
+
+      // Start animation after a short delay to allow data to load
+      setTimeout(() => {
+        animateStats();
+      }, 500);
+    });
+
+    // Refresh data every 5 minutes
+    useIntervalFn(() => {
+      fetchData();
+      calculateChanges();
+      animateStats();
+    }, 300000);
+
+    return {
+      allPatients,
+      recentMedicalRecords,
+      loadingPatients,
+      loadingRecords,
+      currentDateTime,
+      stats,
+      animatedStats,
+      statsChange,
+      selectedPeriod,
+      periodOptions,
+      patientsChartData,
+      todayChartData,
+      unbilledChartData,
+      newPatientsChartData,
+      patientsTrendData,
+      recordsStatusData,
+      genderDistributionData,
+      ageDistributionData,
+      doughnutOptions,
+      miniBarOptions,
+      miniLineOptions,
+      trendChartOptions,
+      pieChartOptions,
+      barChartOptions,
+    };
+  },
+};
 </script>
 
 <style scoped>
-/* Custom ProgressBar colors */
-:deep(.p-progressbar-purple .p-progressbar-value) {
-    background: linear-gradient(to right, #8b5cf6, #7c3aed);
+.reception-dashboard {
+  font-family: 'Inter', sans-serif;
 }
 
-:deep(.p-progressbar-orange .p-progressbar-value) {
-    background: linear-gradient(to right, #f97316, #ea580c);
+.p-card {
+  border-radius: 0.75rem;
+  transition: all 0.3s ease;
 }
 
-:deep(.p-progressbar-blue .p-progressbar-value) {
-    background: linear-gradient(to right, #3b82f6, #2563eb);
+.p-card-title {
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: #1f2937;
+  margin-bottom: 1rem;
 }
 
-:deep(.p-progressbar-pink .p-progressbar-value) {
-    background: linear-gradient(to right, #ec4899, #db2777);
+.p-avatar {
+  background-color: #3b82f6;
+  color: white;
 }
 
-/* Custom Card styling */
-:deep(.p-card) {
-    border: none;
-    box-shadow: none;
+/* Animation styles */
+.fade-enter-active,
+.fade-leave-active {
+  transition: all 0.5s ease;
 }
 
-:deep(.p-card .p-card-header) {
-    padding: 0;
-    border: none;
-}
-
-:deep(.p-card .p-card-content) {
-    padding: 0;
-}
-
-/* Loading skeleton animations */
-.animate-pulse {
-    animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
-}
-
-@keyframes pulse {
-
-    0%,
-    100% {
-        opacity: 1;
-    }
-
-    50% {
-        opacity: 0.5;
-    }
-}
-
-/* Responsive grid */
-.grid {
-    display: grid;
-}
-
-@media (min-width: 640px) {
-    .sm\:grid-cols-2 {
-        grid-template-columns: repeat(2, minmax(0, 1fr));
-    }
-}
-
-@media (min-width: 768px) {
-    .md\:grid-cols-3 {
-        grid-template-columns: repeat(3, minmax(0, 1fr));
-    }
-}
-
-@media (min-width: 1024px) {
-    .lg\:grid-cols-4 {
-        grid-template-columns: repeat(4, minmax(0, 1fr));
-    }
-
-    .lg\:grid-cols-7 {
-        grid-template-columns: repeat(7, minmax(0, 1fr));
-    }
-
-    .lg\:grid-cols-2 {
-        grid-template-columns: repeat(2, minmax(0, 1fr));
-    }
+.fade-enter-from,
+.fade-leave-to {
+  opacity: 0;
+  transform: translateY(20px);
 }
 </style>

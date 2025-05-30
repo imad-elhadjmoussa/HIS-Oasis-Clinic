@@ -18,7 +18,7 @@ const toggleSidebar = () => {
 
 const menuItems = [
     { label: "All Users", icon: "pi pi-users", route: "/users" },
-    { label: "Settings", icon: "pi pi-cog", route: "/users/settings" },
+    // { label: "Settings", icon: "pi pi-cog", route: "/users/settings" },
     { label: "Logout", icon: "pi pi-sign-out", action: "logout" }
 ];
 
